@@ -74,6 +74,29 @@ const animateStats = () => {
 
 // Update Swiper initialization
 document.addEventListener('DOMContentLoaded', () => {
+    // Popup functionality
+    const popup = document.querySelector('.job-search-popup');
+    const backdrop = document.querySelector('.backdrop-overlay');
+    const closePopup = document.querySelector('.close-popup');
+
+    // Show popup and backdrop after 15 seconds
+    setTimeout(() => {
+        popup.classList.add('show');
+        backdrop.classList.add('show');
+    }, 15000);
+
+    // Function to close popup
+    const hidePopup = () => {
+        popup.classList.remove('show');
+        backdrop.classList.remove('show');
+    };
+
+    // Close popup when clicking the close button
+    closePopup.addEventListener('click', hidePopup);
+
+    // Close popup when clicking outside
+    backdrop.addEventListener('click', hidePopup);
+
     const showcaseSlider = document.querySelector('.showcase-slider');
     if (showcaseSlider) {
         const swiper = new Swiper('.showcase-slider', {
