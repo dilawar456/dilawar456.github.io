@@ -327,7 +327,7 @@ nav {
     border-radius: 10px;
     overflow: hidden;
     position: relative;
-    cursor: pointer;
+    cursor: default; /* Remove pointer cursor from video items */
 }
 
 .video-wrapper {
@@ -353,8 +353,9 @@ nav {
 .video-container {
     position: relative;
     width: 100%;
-    height: 100%;
+    height: 0;
     padding-bottom: 56.25%;
+    overflow: hidden;
 }
 
 .video-container iframe {
@@ -364,22 +365,30 @@ nav {
     width: 100%;
     height: 100%;
     border: none;
-    pointer-events: none; /* Prevent iframe interaction */
+    pointer-events: auto !important;
+    z-index: 2;
 }
 
+.portfolio-item.video-item {
+    background: #000;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: default;
+}
+
+/* Remove blocking overlay styles */
 .portfolio-item.video-item .portfolio-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: linear-gradient(transparent, rgba(0,0,0,0.8));
-    padding: 1rem;
-    opacity: 1;
-    transition: opacity 0.3s ease;
+    display: none;
 }
 
-.portfolio-item.video-item:hover .portfolio-overlay {
-    opacity: 1;
+.swiper-slide::after {
+    display: none;
+}
+
+/* Make sure videos are clickable */
+.swiper-slide iframe {
+    pointer-events: auto !important;
+    z-index: 2;
 }
 
 /* About Section */
@@ -917,6 +926,19 @@ footer p {
     align-items: center;
     width: 100%;
     transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.swiper-slide iframe {
+    pointer-events: none; /* Prevents iframe from capturing clicks */
+}
+
+.swiper-slide::after {
+    display: none;
+}
+
+.swiper-slide:hover::after {
+    background: rgba(0, 0, 0, 0.2);
 }
 
 .showcase-slide {

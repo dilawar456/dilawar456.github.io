@@ -101,6 +101,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 nextEl: '.swiper-button-next',
                 prevEl: '.swiper-button-prev',
             },
+            on: {
+                init: function () {
+                    const videoSlides = document.querySelectorAll('.swiper-slide iframe');
+                    videoSlides.forEach(iframe => {
+                        // Enable interaction with iframe
+                        iframe.style.pointerEvents = 'auto';
+                        iframe.style.zIndex = '2';
+                        
+                        // Update video parameters
+                        const videoId = iframe.src.split('/').pop().split('?')[0];
+                        iframe.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&controls=1&mute=0&playsinline=1&rel=0`;
+                        
+                        // Remove overlay when clicking video
+                        const slideWrapper = iframe.parentElement;
+                        slideWrapper.style.cursor = 'pointer';
+                        slideWrapper.querySelector('.portfolio-overlay')?.remove();
+                        
+                        // Remove any blocking elements
+                        const blocker = slideWrapper.querySelector('.swiper-slide::after');
+                        if (blocker) blocker.remove();
+                    });
+                }
+            }
         });
     }
 });
@@ -418,27 +441,24 @@ document.addEventListener('DOMContentLoaded', () => {
             videoContainer.className = 'video-container';
             
             const iframe = document.createElement('iframe');
-            iframe.src = `https://www.youtube.com/embed/${content.id}?autoplay=1&controls=0&mute=1&loop=1&playlist=${content.id}&modestbranding=1&playsinline=1&rel=0`;
+            iframe.src = `https://www.youtube.com/embed/${content.id}?enablejsapi=1&controls=1&mute=0&playsinline=1&rel=0`;
             iframe.title = content.title;
             iframe.frameBorder = '0';
-            iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+            iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen';
             iframe.allowFullscreen = true;
+            iframe.style.pointerEvents = 'auto';
+            iframe.style.zIndex = '2';
             
             videoContainer.appendChild(iframe);
             item.appendChild(videoContainer);
             
-            const overlay = document.createElement('div');
-            overlay.className = 'portfolio-overlay';
-            
+            // Remove overlay for better video interaction
             const title = document.createElement('h3');
             title.textContent = content.title;
-            overlay.appendChild(title);
+            title.style.padding = '10px';
+            title.style.marginTop = '10px';
+            item.appendChild(title);
             
-            item.addEventListener('click', () => {
-                window.open(`https://www.youtube.com/watch?v=${content.id}`, '_blank');
-            });
-            
-            item.appendChild(overlay);
             return item;
         } else {
             const item = document.createElement('div');
