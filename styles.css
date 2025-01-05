@@ -320,14 +320,16 @@ nav {
 
 /* Video Portfolio Items */
 .portfolio-item.video-item {
-    aspect-ratio: 16/9;
-    width: 100%;
-    height: auto;
-    background: var(--primary-color);
+    aspect-ratio: 16/9 !important;
+    width: 100% !important;
+    height: auto !important;
+    background: #000 !important;
     border-radius: 10px;
     overflow: hidden;
     position: relative;
-    cursor: default; /* Remove pointer cursor from video items */
+    cursor: default;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .video-wrapper {
@@ -356,6 +358,7 @@ nav {
     height: 0;
     padding-bottom: 56.25%;
     overflow: hidden;
+    background-color: #000;
 }
 
 .video-container iframe {
@@ -365,8 +368,19 @@ nav {
     width: 100%;
     height: 100%;
     border: none;
-    pointer-events: auto !important;
-    z-index: 2;
+    pointer-events: none;
+}
+
+/* Remove all overlays and hover effects for video items */
+.portfolio-item.video-item .portfolio-overlay,
+.portfolio-item.video-item:hover .portfolio-overlay {
+    display: none;
+}
+
+/* Remove any text elements that might appear */
+.portfolio-item.video-item h3,
+.portfolio-item.video-item .title {
+    display: none;
 }
 
 .portfolio-item.video-item {
@@ -379,6 +393,15 @@ nav {
 /* Remove blocking overlay styles */
 .portfolio-item.video-item .portfolio-overlay {
     display: none;
+}
+
+.portfolio-item.video-item::after,
+.portfolio-item.video-item::before,
+.portfolio-item.video-item .portfolio-overlay,
+.portfolio-item.video-item:hover .portfolio-overlay,
+.portfolio-item.video-item h3,
+.portfolio-item.video-item .title {
+    display: none !important;
 }
 
 .swiper-slide::after {

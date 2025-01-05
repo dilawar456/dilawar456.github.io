@@ -439,25 +439,28 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const videoContainer = document.createElement('div');
             videoContainer.className = 'video-container';
+            videoContainer.style.backgroundColor = '#000';
             
             const iframe = document.createElement('iframe');
-            iframe.src = `https://www.youtube.com/embed/${content.id}?enablejsapi=1&controls=1&mute=0&playsinline=1&rel=0`;
-            iframe.title = content.title;
+            iframe.src = `https://www.youtube.com/embed/${content.id}?autoplay=1&controls=0&mute=1&loop=1&playlist=${content.id}&modestbranding=1&showinfo=0&rel=0&version=3&enablejsapi=1`;
+            iframe.title = '';
             iframe.frameBorder = '0';
-            iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen';
-            iframe.allowFullscreen = true;
-            iframe.style.pointerEvents = 'auto';
-            iframe.style.zIndex = '2';
+            iframe.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.position = 'absolute';
+            iframe.style.top = '0';
+            iframe.style.left = '0';
+            iframe.style.pointerEvents = 'none';
             
             videoContainer.appendChild(iframe);
             item.appendChild(videoContainer);
             
-            // Remove overlay for better video interaction
-            const title = document.createElement('h3');
-            title.textContent = content.title;
-            title.style.padding = '10px';
-            title.style.marginTop = '10px';
-            item.appendChild(title);
+            // Make sure there are no overlays or titles
+            item.style.background = '#000';
+            item.style.margin = '0';
+            item.style.padding = '0';
+            item.style.overflow = 'hidden';
             
             return item;
         } else {
