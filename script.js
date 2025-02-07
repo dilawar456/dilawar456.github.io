@@ -18,29 +18,50 @@ function handleImageError(img) {
 }
 
 // Add at the top of the file
-function preloadImages() {
+async function preloadImages() {
     const imageUrls = [
         'assets/content/Dilawar CV.png',
-        // Add your most important images here
+        // Add paths to your most important images here
     ];
     
-    imageUrls.forEach(url => {
+    const loadImage = (url) => new Promise((resolve) => {
         const img = new Image();
+        img.onload = () => resolve(true);
+        img.onerror = () => {
+            console.warn(`Failed to load image: ${url}`);
+            resolve(false);
+        };
         img.src = url;
     });
+
+    try {
+        await Promise.all(imageUrls.map(loadImage));
+    } catch (error) {
+        console.error('Image preloading error:', error);
+    }
 }
 
 // Update YouTube embed initialization
 function initYouTubeEmbeds() {
     const ytEmbeds = document.querySelectorAll('iframe[src*="youtube.com"]');
     ytEmbeds.forEach(embed => {
-        let src = embed.src;
-        // Remove any existing parameters
+        // Convert to youtube-nocookie.com
+        let src = embed.src.replace('youtube.com', 'youtube-nocookie.com');
+        
+        // Remove existing parameters
         src = src.split('?')[0];
-        // Add our parameters
-        src += '?enablejsapi=1&rel=0&modestbranding=1&playsinline=1';
-        src += '&origin=' + encodeURIComponent(window.location.origin);
-        embed.src = src;
+        
+        // Add optimized parameters
+        const params = new URLSearchParams({
+            enablejsapi: '1',
+            rel: '0',
+            modestbranding: '1',
+            playsinline: '1',
+            origin: window.location.origin,
+            widget_referrer: window.location.origin
+        });
+        
+        embed.src = `${src}?${params.toString()}`;
     });
 }
 
@@ -108,31 +129,78 @@ const animateStats = () => {
 
 // Add this function at the top
 function initSwiper() {
-    const showcaseSlider = document.querySelector('.showcase-slider');
-    if (!showcaseSlider || !showcaseSlider.querySelector('.swiper-slide')) {
-        console.warn('Swiper container or slides not found');
-        return;
-    }
-
-    try {
-        const swiper = new Swiper('.showcase-slider', {
-            // ...existing swiper config...
-            on: {
-                init: function () {
-                    console.log('Swiper initialized successfully');
-                    // ...rest of init code...
+    return new Promise((resolve) => {
+        const checkSlides = setInterval(() => {
+            const showcaseSlider = document.querySelector('.showcase-slider');
+            const slides = showcaseSlider?.querySelectorAll('.swiper-slide');
+            
+            if (slides?.length > 0) {
+                clearInterval(checkSlides);
+                
+                try {
+                    const swiper = new Swiper('.showcase-slider', {
+                        slidesPerView: 'auto',
+                        centeredSlides: true,
+                        spaceBetween: 30,
+                        loop: false, // Changed to false to prevent issues
+                        autoplay: false, // Temporarily disabled
+                        effect: 'coverflow',
+                        coverflowEffect: {
+                            rotate: 0,
+                            stretch: 0,
+                            depth: 100,
+                            modifier: 2,
+                            slideShadows: false,
+                        },
+                        pagination: {
+                            el: '.swiper-pagination',
+                            clickable: true,
+                        },
+                        navigation: {
+                            nextEl: '.swiper-button-next',
+                            prevEl: '.swiper-button-prev',
+                        }
+                    });
+                    
+                    // Enable autoplay after initialization
+                    setTimeout(() => {
+                        swiper.params.autoplay = {
+                            delay: 5000,
+                            disableOnInteraction: false
+                        };
+                        swiper.autoplay.start();
+                    }, 1000);
+                    
+                    resolve(swiper);
+                } catch (error) {
+                    console.error('Swiper initialization error:', error);
+                    resolve(null);
                 }
             }
-        });
-    } catch (error) {
-        console.error('Error initializing Swiper:', error);
-    }
+        }, 100);
+
+        // Timeout after 5 seconds
+        setTimeout(() => {
+            clearInterval(checkSlides);
+            resolve(null);
+        }, 5000);
+    });
 }
 
 // Update Swiper initialization
-document.addEventListener('DOMContentLoaded', () => {
-    preloadImages();
+document.addEventListener('DOMContentLoaded', async () => {
+    // First preload critical images
+    await preloadImages();
+    
+    // Initialize YouTube embeds
     initYouTubeEmbeds();
+    
+    // Load portfolio items
+    await loadPortfolioItems('all', true);
+    
+    // Initialize Swiper
+    const swiper = await initSwiper();
+    
     // Popup functionality
     const popup = document.querySelector('.job-search-popup');
     const backdrop = document.querySelector('.backdrop-overlay');
