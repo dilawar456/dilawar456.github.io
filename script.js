@@ -10,6 +10,12 @@ function scrollToSection(sectionId) {
     });
 }
 
+// Add this function for image error handling
+function handleImageError(img) {
+    img.onerror = null; // Prevent infinite loop
+    img.src = 'assets/content/placeholder.jpg'; // Add a placeholder image
+}
+
 // Navigation background change on scroll
 window.addEventListener('scroll', () => {
     const nav = document.querySelector('nav');
@@ -494,7 +500,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const img = document.createElement('img');
             img.src = content;
             img.alt = `${filter} project ${index}`;
-            img.loading = 'lazy';
+            img.loading = 'lazy'; // Add lazy loading
+            img.onerror = () => handleImageError(img);
             item.appendChild(img);
 
             const overlay = document.createElement('div');

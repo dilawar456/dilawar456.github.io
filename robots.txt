@@ -1,3 +1,18 @@
 User-agent: *
 Allow: /
+Allow: /*.js$
+Allow: /*.css$
+Allow: /*.jpg$
+Allow: /*.png$
+Allow: /*.gif$
+Allow: /fonts/
+Allow: /webfonts/
+
+# Allow Google services
+Allow: /youtube.com/
+Allow: /ytimg.com/
+Allow: /doubleclick.net/
+Allow: /googleapis.com/
+Allow: /gstatic.com/
+
 Sitemap: https://www.dilawarali.com/sitemap.xml
