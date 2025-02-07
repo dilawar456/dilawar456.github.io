@@ -35,13 +35,11 @@ function initYouTubeEmbeds() {
     const ytEmbeds = document.querySelectorAll('iframe[src*="youtube.com"]');
     ytEmbeds.forEach(embed => {
         let src = embed.src;
-        if (!src.includes('enablejsapi')) {
-            src += (src.includes('?') ? '&' : '?') + 'enablejsapi=1';
-        }
-        if (!src.includes('origin')) {
-            const origin = window.location.origin;
-            src += `&origin=${encodeURIComponent(origin)}`;
-        }
+        // Remove any existing parameters
+        src = src.split('?')[0];
+        // Add our parameters
+        src += '?enablejsapi=1&rel=0&modestbranding=1&playsinline=1';
+        src += '&origin=' + encodeURIComponent(window.location.origin);
         embed.src = src;
     });
 }
@@ -108,6 +106,29 @@ const animateStats = () => {
     });
 };
 
+// Add this function at the top
+function initSwiper() {
+    const showcaseSlider = document.querySelector('.showcase-slider');
+    if (!showcaseSlider || !showcaseSlider.querySelector('.swiper-slide')) {
+        console.warn('Swiper container or slides not found');
+        return;
+    }
+
+    try {
+        const swiper = new Swiper('.showcase-slider', {
+            // ...existing swiper config...
+            on: {
+                init: function () {
+                    console.log('Swiper initialized successfully');
+                    // ...rest of init code...
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error initializing Swiper:', error);
+    }
+}
+
 // Update Swiper initialization
 document.addEventListener('DOMContentLoaded', () => {
     preloadImages();
@@ -135,58 +156,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Close popup when clicking outside
     backdrop.addEventListener('click', hidePopup);
 
-    const showcaseSlider = document.querySelector('.showcase-slider');
-    if (showcaseSlider) {
-        const swiper = new Swiper('.showcase-slider', {
-            slidesPerView: 'auto',
-            centeredSlides: true,
-            spaceBetween: 30,
-            loop: true,
-            autoplay: {
-                delay: 5000,
-                disableOnInteraction: false,
-            },
-            effect: 'coverflow',
-            coverflowEffect: {
-                rotate: 0,
-                stretch: 0,
-                depth: 100,
-                modifier: 2,
-                slideShadows: false,
-            },
-            pagination: {
-                el: '.swiper-pagination',
-                clickable: true,
-            },
-            navigation: {
-                nextEl: '.swiper-button-next',
-                prevEl: '.swiper-button-prev',
-            },
-            on: {
-                init: function () {
-                    const videoSlides = document.querySelectorAll('.swiper-slide iframe');
-                    videoSlides.forEach(iframe => {
-                        // Enable interaction with iframe
-                        iframe.style.pointerEvents = 'auto';
-                        iframe.style.zIndex = '2';
-                        
-                        // Update video parameters
-                        const videoId = iframe.src.split('/').pop().split('?')[0];
-                        iframe.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&controls=1&mute=0&playsinline=1&rel=0`;
-                        
-                        // Remove overlay when clicking video
-                        const slideWrapper = iframe.parentElement;
-                        slideWrapper.style.cursor = 'pointer';
-                        slideWrapper.querySelector('.portfolio-overlay')?.remove();
-                        
-                        // Remove any blocking elements
-                        const blocker = slideWrapper.querySelector('.swiper-slide::after');
-                        if (blocker) blocker.remove();
-                    });
-                }
-            }
-        });
-    }
+    // First load all required content
+    loadPortfolioItems('all', true).then(() => {
+        // Then initialize Swiper
+        setTimeout(initSwiper, 100);
+    });
 });
 
 // Portfolio configuration

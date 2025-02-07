@@ -1,5 +1,7 @@
 User-agent: *
 Allow: /
+Allow: /assets/
+Allow: /assets/content/
 Allow: /*.js$
 Allow: /*.css$
 Allow: /*.jpg$
@@ -21,5 +23,6 @@ Allow: /youtube.com/youtubei/
 Allow: /youtube-nocookie.com/
 Allow: /youtube.googleapis.com/
 Allow: /static.doubleclick.net/
+Allow: /googleads.g.doubleclick.net/
 
 Sitemap: https://www.dilawarali.com/sitemap.xml

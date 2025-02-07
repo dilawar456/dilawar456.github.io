@@ -1,0 +1,20 @@
+# Enable CORS
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+Header set Access-Control-Allow-Headers "Content-Type"
+
+# Enable directory listing
+Options +Indexes
+
+# Handle errors
+ErrorDocument 404 /404.html
+
+# Cache control for images
+<FilesMatch "\.(jpg|jpeg|png|gif)$">
+    Header set Cache-Control "max-age=31536000, public"
+</FilesMatch>
+
+# Proper MIME types
+AddType image/jpeg .jpg .jpeg
+AddType image/png .png
+AddType image/gif .gif
