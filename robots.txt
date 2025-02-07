@@ -14,5 +14,12 @@ Allow: /ytimg.com/
 Allow: /doubleclick.net/
 Allow: /googleapis.com/
 Allow: /gstatic.com/
+Allow: /youtube.com/iframe_api
+Allow: /youtube.com/s/player/
+Allow: /youtube.com/api/stats/
+Allow: /youtube.com/youtubei/
+Allow: /youtube-nocookie.com/
+Allow: /youtube.googleapis.com/
+Allow: /static.doubleclick.net/
 
 Sitemap: https://www.dilawarali.com/sitemap.xml

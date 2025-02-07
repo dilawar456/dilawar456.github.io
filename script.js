@@ -14,6 +14,36 @@ function scrollToSection(sectionId) {
 function handleImageError(img) {
     img.onerror = null; // Prevent infinite loop
     img.src = 'assets/content/placeholder.jpg'; // Add a placeholder image
+    console.warn(`Failed to load image: ${img.src}`);
+}
+
+// Add at the top of the file
+function preloadImages() {
+    const imageUrls = [
+        'assets/content/Dilawar CV.png',
+        // Add your most important images here
+    ];
+    
+    imageUrls.forEach(url => {
+        const img = new Image();
+        img.src = url;
+    });
+}
+
+// Update YouTube embed initialization
+function initYouTubeEmbeds() {
+    const ytEmbeds = document.querySelectorAll('iframe[src*="youtube.com"]');
+    ytEmbeds.forEach(embed => {
+        let src = embed.src;
+        if (!src.includes('enablejsapi')) {
+            src += (src.includes('?') ? '&' : '?') + 'enablejsapi=1';
+        }
+        if (!src.includes('origin')) {
+            const origin = window.location.origin;
+            src += `&origin=${encodeURIComponent(origin)}`;
+        }
+        embed.src = src;
+    });
 }
 
 // Navigation background change on scroll
@@ -80,6 +110,8 @@ const animateStats = () => {
 
 // Update Swiper initialization
 document.addEventListener('DOMContentLoaded', () => {
+    preloadImages();
+    initYouTubeEmbeds();
     // Popup functionality
     const popup = document.querySelector('.job-search-popup');
     const backdrop = document.querySelector('.backdrop-overlay');
