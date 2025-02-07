@@ -12,10 +12,6 @@
     box-sizing: border-box;
 }
 
-html {
-    /* Remove this property */
-    /* scroll-behavior: smooth; */
-}
 
 body {
     font-family: 'Poppins', sans-serif;
