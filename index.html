@@ -12,6 +12,20 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap&display=swap" rel="stylesheet">
+
+    <!-- Add this meta tag -->
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    
+    <!-- Update iframe loading -->
+    <script type="text/javascript">
+        window.addEventListener('load', function() {
+            const iframes = document.querySelectorAll('iframe[src*="youtube-nocookie.com"]');
+            iframes.forEach(iframe => {
+                iframe.setAttribute('loading', 'lazy');
+                iframe.setAttribute('importance', 'low');
+            });
+        });
+    </script>
 </head>
 <body>
     <nav>
@@ -81,9 +95,9 @@
             <button class="filter-btn" data-filter="commercial">Commercial</button>
             <button class="filter-btn" data-filter="3d-floor-plans">3D Floor Plans</button>
             <button class="filter-btn" data-filter="2d-floor-plans">2D Floor Plans</button>
-            <button class="filter-btn" data-filter="autocad">AutoCAD Drawings</button>
             <button class="filter-btn" data-filter="society">Society Renders</button>
             <button class="filter-btn" data-filter="landscapes">Landscapes</button>
+            <a href="https://drive.google.com/drive/folders/1_WjCSCJTDQKjU3Krv8dObiDuxv77tR0-?usp=sharing" target="_blank" class="filter-btn">AutoCAD Drawings</a>
             <button class="filter-btn" data-filter="animations">Animations</button>
         </div>
         

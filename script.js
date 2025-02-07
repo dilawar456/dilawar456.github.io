@@ -12,30 +12,44 @@ function scrollToSection(sectionId) {
 
 // Add this function for image error handling
 function handleImageError(img) {
-    img.onerror = null; // Prevent infinite loop
-    img.src = 'assets/content/placeholder.jpg'; // Add a placeholder image
-    console.warn(`Failed to load image: ${img.src}`);
+    if (!img.dataset.retryCount) {
+        img.dataset.retryCount = '0';
+    }
+    
+    const retryCount = parseInt(img.dataset.retryCount);
+    if (retryCount < 3) { // Try up to 3 times
+        img.dataset.retryCount = (retryCount + 1).toString();
+        setTimeout(() => {
+            img.src = img.src; // Retry loading
+        }, 1000 * (retryCount + 1)); // Increasing delay for each retry
+    } else {
+        img.onerror = null; // Prevent infinite loop
+        img.src = 'assets/content/placeholder.jpg';
+        console.warn(`Failed to load image after 3 retries: ${img.src}`);
+    }
 }
 
 // Add at the top of the file
 async function preloadImages() {
-    const imageUrls = [
+    const criticalImages = [
         'assets/content/Dilawar CV.png',
-        // Add paths to your most important images here
+        'assets/content/carousel/1.jpg',
+        'assets/content/carousel/2.jpg',
+        'assets/content/carousel/3.jpg'
     ];
-    
+
     const loadImage = (url) => new Promise((resolve) => {
         const img = new Image();
         img.onload = () => resolve(true);
         img.onerror = () => {
-            console.warn(`Failed to load image: ${url}`);
+            console.warn(`Failed to preload image: ${url}`);
             resolve(false);
         };
         img.src = url;
     });
 
     try {
-        await Promise.all(imageUrls.map(loadImage));
+        await Promise.all(criticalImages.map(loadImage));
     } catch (error) {
         console.error('Image preloading error:', error);
     }
@@ -43,25 +57,24 @@ async function preloadImages() {
 
 // Update YouTube embed initialization
 function initYouTubeEmbeds() {
-    const ytEmbeds = document.querySelectorAll('iframe[src*="youtube.com"]');
+    const ytEmbeds = document.querySelectorAll('iframe[src*="youtube"]');
     ytEmbeds.forEach(embed => {
-        // Convert to youtube-nocookie.com
-        let src = embed.src.replace('youtube.com', 'youtube-nocookie.com');
-        
-        // Remove existing parameters
-        src = src.split('?')[0];
-        
-        // Add optimized parameters
+        const videoId = embed.src.split('/').pop().split('?')[0];
         const params = new URLSearchParams({
             enablejsapi: '1',
             rel: '0',
             modestbranding: '1',
             playsinline: '1',
             origin: window.location.origin,
-            widget_referrer: window.location.origin
+            autoplay: '0',
+            controls: '1',
+            showinfo: '0',
+            iv_load_policy: '3'
         });
         
-        embed.src = `${src}?${params.toString()}`;
+        embed.src = `https://www.youtube-nocookie.com/embed/${videoId}?${params.toString()}`;
+        embed.setAttribute('loading', 'lazy');
+        embed.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
     });
 }
 
@@ -127,109 +140,122 @@ const animateStats = () => {
     });
 };
 
-// Add this function at the top
+// Replace the initSwiper function with this one
 function initSwiper() {
-    return new Promise((resolve) => {
-        const checkSlides = setInterval(() => {
-            const showcaseSlider = document.querySelector('.showcase-slider');
-            const slides = showcaseSlider?.querySelectorAll('.swiper-slide');
-            
-            if (slides?.length > 0) {
-                clearInterval(checkSlides);
-                
-                try {
-                    const swiper = new Swiper('.showcase-slider', {
-                        slidesPerView: 'auto',
-                        centeredSlides: true,
-                        spaceBetween: 30,
-                        loop: false, // Changed to false to prevent issues
-                        autoplay: false, // Temporarily disabled
-                        effect: 'coverflow',
-                        coverflowEffect: {
-                            rotate: 0,
-                            stretch: 0,
-                            depth: 100,
-                            modifier: 2,
-                            slideShadows: false,
-                        },
-                        pagination: {
-                            el: '.swiper-pagination',
-                            clickable: true,
-                        },
-                        navigation: {
-                            nextEl: '.swiper-button-next',
-                            prevEl: '.swiper-button-prev',
-                        }
-                    });
-                    
-                    // Enable autoplay after initialization
-                    setTimeout(() => {
-                        swiper.params.autoplay = {
-                            delay: 5000,
-                            disableOnInteraction: false
-                        };
-                        swiper.autoplay.start();
-                    }, 1000);
-                    
-                    resolve(swiper);
-                } catch (error) {
-                    console.error('Swiper initialization error:', error);
-                    resolve(null);
-                }
-            }
-        }, 100);
+    const showcaseSlider = document.querySelector('.showcase-slider');
+    if (!showcaseSlider) return;
 
-        // Timeout after 5 seconds
-        setTimeout(() => {
-            clearInterval(checkSlides);
-            resolve(null);
-        }, 5000);
+    const swiperWrapper = showcaseSlider.querySelector('.swiper-wrapper');
+    swiperWrapper.innerHTML = '';
+
+    // Define content in order - first videos, then images
+    const sliderContent = [
+        // Videos first
+        { type: 'video', id: 'Avgp4riXSnU' },
+        { type: 'video', id: '2vrey6JRZtA' },
+        { type: 'video', id: 'iw792OuOUs4' },
+        // Then images
+        { type: 'image', path: 'assets/content/carousel/1.jpg' },
+        { type: 'image', path: 'assets/content/carousel/2.jpg' },
+        { type: 'image', path: 'assets/content/carousel/3.jpg' },
+        { type: 'image', path: 'assets/content/carousel/4.jpg' },
+        { type: 'image', path: 'assets/content/carousel/5.jpg' },
+        { type: 'image', path: 'assets/content/carousel/6.jpg' },
+        { type: 'image', path: 'assets/content/carousel/7.jpg' }
+    ];
+
+    // Create slides
+    sliderContent.forEach((content, index) => {
+        const slide = document.createElement('div');
+        slide.className = 'swiper-slide';
+        
+        if (content.type === 'video') {
+            slide.innerHTML = `
+                <div class="video-container">
+                    <iframe
+                        src="https://www.youtube-nocookie.com/embed/${content.id}?rel=0&showinfo=0&modestbranding=1"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            `;
+        } else {
+            slide.innerHTML = `
+                <img src="${content.path}" 
+                     alt="Project ${index + 1}"
+                     onerror="this.src='assets/content/placeholder.jpg'">
+            `;
+        }
+        
+        swiperWrapper.appendChild(slide);
+    });
+
+    return new Swiper('.showcase-slider', {
+        slidesPerView: 1,
+        spaceBetween: 30,
+        centeredSlides: true,
+        loop: false,
+        autoplay: false,
+        effect: 'fade',
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+            renderBullet: function (index, className) {
+                return `<span class="${className}">${index + 1}</span>`;
+            },
+        }
     });
 }
 
 // Update Swiper initialization
 document.addEventListener('DOMContentLoaded', async () => {
-    // First preload critical images
-    await preloadImages();
-    
-    // Initialize YouTube embeds
-    initYouTubeEmbeds();
-    
-    // Load portfolio items
-    await loadPortfolioItems('all', true);
-    
-    // Initialize Swiper
-    const swiper = await initSwiper();
-    
-    // Popup functionality
+    try {
+        // First preload critical images
+        await preloadImages();
+        
+        // Initialize YouTube embeds
+        initYouTubeEmbeds();
+        
+        // Load portfolio items first
+        await loadPortfolioItems('all', true);
+        
+        // Then initialize Swiper
+        const swiper = await initSwiper();
+
+        // Initialize popup functionality
+        initializePopup();
+        
+    } catch (error) {
+        console.error('Initialization error:', error);
+    }
+});
+
+// Add this function to handle popup initialization
+function initializePopup() {
     const popup = document.querySelector('.job-search-popup');
     const backdrop = document.querySelector('.backdrop-overlay');
     const closePopup = document.querySelector('.close-popup');
 
-    // Show popup and backdrop after 15 seconds
-    setTimeout(() => {
-        popup.classList.add('show');
-        backdrop.classList.add('show');
-    }, 15000);
+    if (popup && backdrop && closePopup) {
+        setTimeout(() => {
+            popup.classList.add('show');
+            backdrop.classList.add('show');
+        }, 15000);
 
-    // Function to close popup
-    const hidePopup = () => {
-        popup.classList.remove('show');
-        backdrop.classList.remove('show');
-    };
+        const hidePopup = () => {
+            popup.classList.remove('show');
+            backdrop.classList.remove('show');
+        };
 
-    // Close popup when clicking the close button
-    closePopup.addEventListener('click', hidePopup);
-
-    // Close popup when clicking outside
-    backdrop.addEventListener('click', hidePopup);
-
-    // First load all required content
-    loadPortfolioItems('all', true).then(() => {
-        // Then initialize Swiper
-        setTimeout(initSwiper, 100);
-    });
-});
+        closePopup.addEventListener('click', hidePopup);
+        backdrop.addEventListener('click', hidePopup);
+    }
+}
 
 // Portfolio configuration
 const portfolioConfig = {
@@ -545,25 +571,25 @@ document.addEventListener('DOMContentLoaded', () => {
             videoContainer.style.backgroundColor = '#000';
             
             const iframe = document.createElement('iframe');
-            iframe.src = `https://www.youtube.com/embed/${content.id}?autoplay=1&controls=0&mute=1&loop=1&playlist=${content.id}&modestbranding=1&showinfo=0&rel=0&version=3&enablejsapi=1`;
-            iframe.title = '';
+            const params = new URLSearchParams({
+                enablejsapi: '1',
+                rel: '0',
+                modestbranding: '1',
+                playsinline: '1',
+                origin: window.location.origin,
+                autoplay: '0',
+                controls: '1',
+                showinfo: '0'
+            });
+            
+            iframe.src = `https://www.youtube-nocookie.com/embed/${content.id}?${params.toString()}`;
+            iframe.title = content.title || `Video ${index}`;
             iframe.frameBorder = '0';
-            iframe.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
-            iframe.style.width = '100%';
-            iframe.style.height = '100%';
-            iframe.style.position = 'absolute';
-            iframe.style.top = '0';
-            iframe.style.left = '0';
-            iframe.style.pointerEvents = 'none';
+            iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+            iframe.setAttribute('loading', 'lazy');
             
             videoContainer.appendChild(iframe);
             item.appendChild(videoContainer);
-            
-            // Make sure there are no overlays or titles
-            item.style.background = '#000';
-            item.style.margin = '0';
-            item.style.padding = '0';
-            item.style.overflow = 'hidden';
             
             return item;
         } else {
@@ -593,17 +619,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add special handling for AutoCAD and 2D Plans buttons
     const specialButtons = {
-        'autocad': 'https://drive.google.com/drive/folders/1_WjCSCJTDQKjU3Krv8dObiDuxv77tR0-?usp=sharing'
+        'autocad': 'https://drive.google.com/drive/folders/1_WjCSCJTDQKjU3Krv8dObiDuxv77tR0-?usp=sharing',
+        'animations': 'PLafdAuCnIG3qEOHRX50sRGNH71Eb19NHr' // YouTube playlist ID
     };
 
-    Object.entries(specialButtons).forEach(([filter, url]) => {
+    Object.entries(specialButtons).forEach(([filter, value]) => {
         const btn = document.querySelector(`.filter-btn[data-filter="${filter}"]`);
         if (btn) {
-            btn.removeAttribute('data-filter');
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                window.open(url, '_blank');
-            });
+            if (filter === 'autocad') {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.open(value, '_blank');
+                });
+            } else if (filter === 'animations') {
+                btn.addEventListener('click', async () => {
+                    const portfolioGrid = document.querySelector('.portfolio-grid');
+                    portfolioGrid.innerHTML = ''; // Clear existing content
+                    
+                    try {
+                        const videos = await fetchYouTubePlaylist(value);
+                        videos.forEach((video, index) => {
+                            const videoItem = createVideoItem(video, index + 1);
+                            portfolioGrid.appendChild(videoItem);
+                        });
+                    } catch (error) {
+                        console.error('Error loading videos:', error);
+                    }
+                });
+            }
         }
     });
 });
@@ -618,3 +661,84 @@ window.addEventListener('scroll', () => {
 window.addEventListener('load', () => {
     animateStats();
 });
+
+// Replace just the animations related functions and event listeners
+function handleAnimationsClick() {
+    const portfolioGrid = document.querySelector('.portfolio-grid');
+    portfolioGrid.innerHTML = '';
+    
+    // Define the exact list of videos
+    const videos = [
+        { id: 'Avgp4riXSnU', title: 'Exterior Animation' },
+        { id: '2vrey6JRZtA', title: 'Interior Animation' },
+        { id: 'iw792OuOUs4', title: 'Commercial Animation' },
+        // Add more video IDs here if needed
+    ];
+
+    videos.forEach(video => {
+        const videoContainer = document.createElement('div');
+        videoContainer.className = 'portfolio-item video-item';
+        
+        videoContainer.innerHTML = `
+            <div class="video-container">
+                <iframe 
+                    src="https://www.youtube.com/embed/${video.id}?rel=0&showinfo=0&modestbranding=1&controls=1"
+                    title="${video.title}"
+                    frameborder="0"
+                    allowfullscreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                </iframe>
+            </div>
+        `;
+        
+        portfolioGrid.appendChild(videoContainer);
+    });
+}
+
+// Update the animations button event listener
+document.addEventListener('DOMContentLoaded', () => {
+    // ...existing code...
+    
+    const animationsBtn = document.querySelector('.filter-btn[data-filter="animations"]');
+    if (animationsBtn) {
+        animationsBtn.addEventListener('click', () => {
+            // Remove active class from other buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // Add active class to animations button
+            animationsBtn.classList.add('active');
+            // Handle animations click
+            handleAnimationsClick();
+        });
+    }
+    
+    // ...existing code...
+});
+
+// Update createPortfolioItem function for animations
+function createVideoItem(video, index) {
+    const item = document.createElement('div');
+    item.className = 'portfolio-item video-item';
+    
+    const videoContainer = document.createElement('div');
+    videoContainer.className = 'video-container';
+    videoContainer.style.backgroundColor = '#000';
+    
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube-nocookie.com/embed/${video.id}?rel=0&showinfo=0&modestbranding=1`;
+    iframe.title = video.title || `Animation ${index}`;
+    iframe.allowFullscreen = true;
+    iframe.frameBorder = '0';
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+    
+    videoContainer.appendChild(iframe);
+    item.appendChild(videoContainer);
+    
+    return item;
+}
+
+// Remove old animations related code
+// (Remove any other animations related functions or event listeners)
+
+// ...rest of existing code...

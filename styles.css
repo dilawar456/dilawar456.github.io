@@ -1598,3 +1598,77 @@ footer p {
         order: 6; /* Ensure X button appears after YouTube */
     }
 }
+
+/* Update Swiper styles */
+.showcase-slider {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.swiper-slide {
+    opacity: 1 !important;
+    transform: scale(1) !important;
+}
+
+.swiper-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Fix YouTube video containers */
+.video-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+}
+
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* ...existing code... */
+
+/* Update these specific Swiper styles */
+.showcase-slider .swiper-slide {
+    opacity: 1 !important;
+    transform: scale(1) !important;
+    transition: none !important;
+}
+
+.showcase-slider .swiper-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: none !important;
+}
+
+/* Remove blur effects */
+.swiper-slide:not(.swiper-slide-active)::before {
+    display: none;
+}
+
+.swiper-slide:not(.swiper-slide-active) {
+    opacity: 1;
+    transform: scale(1);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+/* Keep video container styles */
+.showcase-slider .video-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    background: #000;
+}
+
+/* ...rest of existing code... */
+
+/* ...rest of existing styles... */
